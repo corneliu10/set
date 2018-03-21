@@ -64,15 +64,15 @@ public:
     }
     
     friend ostream &operator<< (ostream &out, Multime &D)
-    {
-        out<<D.card<<"\n{";
-        
+    {   
         if(D.card == 0)
         {
             out<<"{}\n";
         
             return out;
         }
+		
+		out<<D.card<<"\n{";
         
         for(int i = 0;i < D.card - 1; ++i)
             out<<D.M[i]<<",";
