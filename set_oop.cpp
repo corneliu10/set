@@ -45,7 +45,8 @@ public:
 
         for(int i=1;i<card;i++)
             if(M[i] != M[i-1]) X[cardX++] = M[i];
-
+        
+        delete[] M;
         M = X;
         card = cardX;
     }
@@ -53,6 +54,9 @@ public:
     friend istream &operator>> (istream &in, Multime &D)
     {
         //cout<<"Cardinalul:";
+        if(D.card > 0)
+            delete[] D.M;
+            
         in>>D.card;
         D.M = new int [D.card]; //(int*)malloc(sizeof(int) * D.card);
 
@@ -73,7 +77,7 @@ public:
             return out;
         }
 
-		out<<D.card<<"\n{";
+        out<<D.card<<"\n{";
 
         for(int i = 0;i < D.card - 1; ++i)
             out<<D.M[i]<<",";
@@ -186,6 +190,8 @@ public:
         M = new int [card];
         for(int i=0;i < card; ++i)
             M[i] = A.M[i];
+        
+        return *this;
     }
 
     bool operator==(const Multime &A) const{
@@ -197,7 +203,7 @@ public:
         return true;
     }
 
-    bool operator!=(const Multime &A) {
+    bool operator!=(const Multime &A)  const{
         if(card != A.card) return true;
 
         for(int i=0;i < card;++i)
@@ -206,7 +212,7 @@ public:
         return false;
     }
 
-    bool operator<(const Multime &A) {
+    bool operator<(const Multime &A) const {
         if(card < A.card) return false;
         else return true;
     }
@@ -216,12 +222,19 @@ public:
         return card;
     }
 
-    int get_M_elem(int i)
+    /*int get_M_elem(int i)
     {
         if(card > i)
             return M[i];
         else
             return -1;
+    }*/
+    
+    int &operator[](int i) {
+        if(i < 0 || i >= card)
+            throw std::invalid_argument("index out of range");
+        else
+            return M[i];
     }
 
 private:
@@ -321,16 +334,6 @@ class Multime_Pereche{
 
 public:
 
-    /*void insert_per(Pereche p)
-    {
-        int i;
-        for(i = 0;i < card;++i)
-            if(Mul_Per[i].get_first() == p.get_first() &&
-               Mul_Per[i].get_second() == p.get_second()) return;
-
-        Mul_Per.push_back(p);
-    }*/
-
     Multime_Pereche ()
     {
 
@@ -354,13 +357,41 @@ public:
     ~Multime_Pereche() {
         delete [] Mul_Per;
     }
+    
+    /*void mult()
+    {
+        if(card==0) return;
+
+        Pereche *X;
+        int cardX = 0;
+        //sort(M,M+card);
+
+        cardX++; // elem 1
+        for(int i=1;i<card - 1;i++)
+            for(int j=i+1;j<card;j++)
+            if(Mul_Per[i] != Mul_Per[j]) cardX++;
+
+        X = new int [cardX]; //(int*)malloc(sizeof(int) * cardX);
+        X[0] = M[0];cardX = 1;
+
+        for(int i=1;i<card;i++)
+            if(M[i] != M[i-1]) X[cardX++] = M[i];
+        
+        delete[] M;
+        M = X;
+        card = cardX;
+    }*/
 
     friend istream &operator>> (istream &in, Multime_Pereche &A)
     {
         Pereche x;
         int n;
         in>>n;
-        //A.Mul_Per = (Pereche*)malloc(sizeof(Pereche) * A.card);
+        
+        //A.Mul_Per = (Pereche*)malloc(sizeof(Pereche) * A
+        if(A.card > 0)
+            delete[] A.Mul_Per;
+            
         A.Mul_Per = new Pereche [A.card];
 
         for(int i = 0;i < n; ++i)
@@ -412,9 +443,16 @@ public:
         return true;
     }
 
-    void set_per(int i,Pereche x)
+    /* set_per(int i,Pereche x)
     {
         Mul_Per[i] = x;
+    }*/
+    
+    Pereche &operator[](int i) {
+        if(i < 0 || i >= card)
+            throw std::invalid_argument("index out of range");
+        else
+            return Mul_Per[i];
     }
 
 private:
@@ -430,8 +468,8 @@ Multime_Pereche prod_cartezian(Multime A, Multime B)
     for(int i=0;i < A.get_card();++i)
         for(int j=0;j < B.get_card();++j)
         {
-            Pereche p(A.get_M_elem(i), B.get_M_elem(j));
-            C.set_per(ct++, p);//Mul_Per[ct++] = p;//insert_per(p);
+            Pereche p(A[i], B[j]);
+            C[ct++] = p;
         }
 
     return C;
@@ -439,7 +477,7 @@ Multime_Pereche prod_cartezian(Multime A, Multime B)
 
 int main()
 {
-    freopen("date.in","r",stdin);
+    freopen("data.in","r",stdin);
     //freopen("date.out","w",stdout);
 
     Multime A,B;
@@ -467,7 +505,3 @@ int main()
 
     return 0;
 }
-
-
-
-
