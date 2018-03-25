@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include <cstdio>
+#include <exception>
 
 using namespace std;
 
@@ -45,7 +46,7 @@ public:
 
         for(int i=1;i<card;i++)
             if(M[i] != M[i-1]) X[cardX++] = M[i];
-        
+
         delete[] M;
         M = X;
         card = cardX;
@@ -56,7 +57,7 @@ public:
         //cout<<"Cardinalul:";
         if(D.card > 0)
             delete[] D.M;
-            
+
         in>>D.card;
         D.M = new int [D.card]; //(int*)malloc(sizeof(int) * D.card);
 
@@ -190,7 +191,7 @@ public:
         M = new int [card];
         for(int i=0;i < card; ++i)
             M[i] = A.M[i];
-        
+
         return *this;
     }
 
@@ -229,10 +230,10 @@ public:
         else
             return -1;
     }*/
-    
+
     int &operator[](int i) {
         if(i < 0 || i >= card)
-            throw std::invalid_argument("index out of range");
+            throw "index out of range";
         else
             return M[i];
     }
@@ -329,6 +330,11 @@ private:
     int second;
 };
 
+
+int compare(const void *a, const void *b) {
+    return (*(Pereche*)a < *(Pereche*)b);
+}
+
 class Multime_Pereche{
     friend class Pereche;
 
@@ -355,43 +361,41 @@ public:
     }
 
     ~Multime_Pereche() {
-        delete [] Mul_Per;
+        delete[] Mul_Per;
     }
-    
-    /*void mult()
+
+    void mult()
     {
         if(card==0) return;
-
         Pereche *X;
         int cardX = 0;
-        //sort(M,M+card);
 
-        cardX++; // elem 1
-        for(int i=1;i<card - 1;i++)
-            for(int j=i+1;j<card;j++)
-            if(Mul_Per[i] != Mul_Per[j]) cardX++;
+        qsort(Mul_Per, card, sizeof(Pereche), compare);
 
-        X = new int [cardX]; //(int*)malloc(sizeof(int) * cardX);
-        X[0] = M[0];cardX = 1;
-
+        //cardX++; // elem 1
         for(int i=1;i<card;i++)
-            if(M[i] != M[i-1]) X[cardX++] = M[i];
-        
-        delete[] M;
-        M = X;
+            if(Mul_Per[i] != Mul_Per[i-1]) cardX++;
+
+        X = new Pereche [cardX];
+        X[0] = Mul_Per[0];cardX = 1;
+        for(int i=1;i < card;i++)
+            if(Mul_Per[i] != Mul_Per[i-1]) X[cardX++] = Mul_Per[i];
+
+        delete[] Mul_Per;
+        Mul_Per = X;
         card = cardX;
-    }*/
+    }
 
     friend istream &operator>> (istream &in, Multime_Pereche &A)
     {
         Pereche x;
         int n;
         in>>n;
-        
+
         //A.Mul_Per = (Pereche*)malloc(sizeof(Pereche) * A
         if(A.card > 0)
             delete[] A.Mul_Per;
-            
+
         A.Mul_Per = new Pereche [A.card];
 
         for(int i = 0;i < n; ++i)
@@ -400,7 +404,7 @@ public:
             A.Mul_Per[i] = x;
         }
 
-        ///TO DO vec_mult function
+        A.mult();
 
         return in;
     }
@@ -443,14 +447,14 @@ public:
         return true;
     }
 
-    /* set_per(int i,Pereche x)
-    {
-        Mul_Per[i] = x;
-    }*/
-    
+    bool operator<(const Multime_Pereche &A) const {
+        if(card < A.card) return false;
+        else return true;
+    }
+
     Pereche &operator[](int i) {
         if(i < 0 || i >= card)
-            throw std::invalid_argument("index out of range");
+            throw "index out of range";
         else
             return Mul_Per[i];
     }
@@ -472,12 +476,14 @@ Multime_Pereche prod_cartezian(Multime A, Multime B)
             C[ct++] = p;
         }
 
+    C.mult();
+
     return C;
 }
 
 int main()
 {
-    freopen("data.in","r",stdin);
+    freopen("date.in","r",stdin);
     //freopen("date.out","w",stdout);
 
     Multime A,B;
